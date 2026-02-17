@@ -101,7 +101,10 @@ public class TerminalBuffer {
     }
 
     public void write(String text) {
-        for (char ch : text.toCharArray()) {
+        char[] chars = text.toCharArray();
+        for (int idx = 0; idx < chars.length; idx++) {
+            char ch = chars[idx];
+
             if (ch == '\n') {
                 newLine();
                 continue;
@@ -113,16 +116,25 @@ public class TerminalBuffer {
             if (cursorCol >= width) {
                 cursorCol = 0;
                 cursorRow++;
+
                 if (cursorRow >= height) {
-                    scrollUp();
-                    cursorRow = height - 1;
+                    if (idx < chars.length - 1) {
+                        scrollUp();
+                        cursorRow = height - 1;
+                    } else {
+                        cursorRow = height - 1;
+                    }
                 }
             }
         }
     }
 
+
     public void insert(String text) {
-        for (char ch : text.toCharArray()) {
+        char[] chars = text.toCharArray();
+        for (int idx = 0; idx < chars.length; idx++) {
+            char ch = chars[idx];
+
             if (ch == '\n') {
                 newLine();
                 continue;
@@ -140,9 +152,14 @@ public class TerminalBuffer {
             if (cursorCol >= width) {
                 cursorCol = 0;
                 cursorRow++;
+
                 if (cursorRow >= height) {
-                    scrollUp();
-                    cursorRow = height - 1;
+                    if (idx < chars.length - 1) {
+                        scrollUp();
+                        cursorRow = height - 1;
+                    } else {
+                        cursorRow = height - 1;
+                    }
                 }
             }
         }
