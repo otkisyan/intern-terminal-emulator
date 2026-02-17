@@ -129,7 +129,6 @@ public class TerminalBuffer {
         }
     }
 
-
     public void insert(String text) {
         char[] chars = text.toCharArray();
         for (int idx = 0; idx < chars.length; idx++) {
@@ -190,6 +189,79 @@ public class TerminalBuffer {
     public void clearAll() {
         clearScreen();
         scrollback.clear();
+    }
+
+    public char getCharAt(int row, int col, boolean fromScrollback) {
+        if (fromScrollback) {
+            if (row < 0 || row >= scrollback.size()) return ' ';
+            return scrollback.get(row).get(col).ch;
+        } else {
+            if (row < 0 || row >= height) return ' ';
+            return screen.get(row).get(col).ch;
+        }
+    }
+
+    public Attributes getAttributesAt(int row, int col, boolean fromScrollback) {
+        if (fromScrollback) {
+            if (row < 0 || row >= scrollback.size()) return null;
+            List<Cell> line = scrollback.get(row);
+            if (col < 0 || col >= line.size()) return null;
+            return line.get(col).attr;
+        } else {
+            if (row < 0 || row >= height) return null;
+            List<Cell> line = screen.get(row);
+            if (col < 0 || col >= line.size()) return null;
+            return line.get(col).attr;
+        }
+    }
+
+    public String getLine(int row, boolean fromScrollback) {
+        List<Cell> line;
+
+        if (fromScrollback) {
+            if (row < 0 || row >= scrollback.size()) return "";
+            line = scrollback.get(row);
+        } else {
+            if (row < 0 || row >= height) return "";
+            line = screen.get(row);
+        }
+
+        StringBuilder sb = new StringBuilder();
+        for (Cell c : line) {
+            sb.append(c.ch);
+        }
+        return sb.toString();
+    }
+
+    public String getScreenContent() {
+        StringBuilder sb = new StringBuilder();
+        for (List<Cell> line : screen) {
+            for (Cell c : line) {
+                sb.append(c.ch);
+            }
+            sb.append('\n');
+        }
+        return sb.toString();
+    }
+
+    public String getFullContent() {
+        StringBuilder sb = new StringBuilder();
+
+        for (List<Cell> line : scrollback) {
+            for (Cell c : line) {
+                sb.append(c.ch);
+            }
+            sb.append('\n');
+        }
+
+        for (List<Cell> line : screen) {
+            for (Cell c : line) {
+                sb.append(c.ch);
+            }
+            sb.append('\n');
+        }
+
+        return sb.toString();
     }
 
 }
