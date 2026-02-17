@@ -38,6 +38,26 @@ public class TerminalBuffer {
         return line;
     }
 
+    private void scrollUp() {
+        List<Cell> top = screen.remove(0);
+        scrollback.add(top);
+
+        if (scrollback.size() > scrollbackMax) {
+            scrollback.removeFirst();
+        }
+
+        screen.add(createEmptyLine());
+    }
+
+    private void newLine() {
+        cursorCol = 0;
+        cursorRow++;
+        if (cursorRow >= height) {
+            scrollUp();
+            cursorRow = height - 1;
+        }
+    }
+
     private void ensureCursorInBounds() {
         cursorRow = Math.max(0, Math.min(cursorRow, height - 1));
         cursorCol = Math.max(0, Math.min(cursorCol, width - 1));
@@ -79,4 +99,80 @@ public class TerminalBuffer {
         cursorCol += n;
         ensureCursorInBounds();
     }
+
+    public void write(String text) {
+        for (char ch : text.toCharArray()) {
+            if (ch == '\n') {
+                newLine();
+                continue;
+            }
+
+            screen.get(cursorRow).set(cursorCol, new Cell(ch, currentAttributes));
+
+            cursorCol++;
+            if (cursorCol >= width) {
+                cursorCol = 0;
+                cursorRow++;
+                if (cursorRow >= height) {
+                    scrollUp();
+                    cursorRow = height - 1;
+                }
+            }
+        }
+    }
+
+    public void insert(String text) {
+        for (char ch : text.toCharArray()) {
+            if (ch == '\n') {
+                newLine();
+                continue;
+            }
+
+            List<Cell> line = screen.get(cursorRow);
+
+            for (int i = width - 1; i > cursorCol; i--) {
+                line.set(i, line.get(i - 1));
+            }
+
+            line.set(cursorCol, new Cell(ch, currentAttributes));
+
+            cursorCol++;
+            if (cursorCol >= width) {
+                cursorCol = 0;
+                cursorRow++;
+                if (cursorRow >= height) {
+                    scrollUp();
+                    cursorRow = height - 1;
+                }
+            }
+        }
+    }
+
+    public void fillLine(int row, char ch) {
+        if (row < 0 || row >= height) return;
+
+        List<Cell> line = screen.get(row);
+        for (int i = 0; i < width; i++) {
+            line.set(i, new Cell(ch, currentAttributes));
+        }
+    }
+
+    public void insertEmptyLineAtBottom() {
+        scrollUp();
+    }
+
+    public void clearScreen() {
+        screen.clear();
+        for (int i = 0; i < height; i++) {
+            screen.add(createEmptyLine());
+        }
+        cursorRow = 0;
+        cursorCol = 0;
+    }
+
+    public void clearAll() {
+        clearScreen();
+        scrollback.clear();
+    }
+
 }
