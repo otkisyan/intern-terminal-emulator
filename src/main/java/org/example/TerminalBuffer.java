@@ -37,4 +37,46 @@ public class TerminalBuffer {
         }
         return line;
     }
+
+    private void ensureCursorInBounds() {
+        cursorRow = Math.max(0, Math.min(cursorRow, height - 1));
+        cursorCol = Math.max(0, Math.min(cursorCol, width - 1));
+    }
+
+    public void setAttributes(Color fg, Color bg, boolean bold, boolean italic, boolean underline) {
+        currentAttributes.fg = fg;
+        currentAttributes.bg = bg;
+        currentAttributes.bold = bold;
+        currentAttributes.italic = italic;
+        currentAttributes.underline = underline;
+    }
+
+    public int getCursorRow() { return cursorRow; }
+    public int getCursorCol() { return cursorCol; }
+
+    public void setCursor(int row, int col) {
+        this.cursorRow = row;
+        this.cursorCol = col;
+        ensureCursorInBounds();
+    }
+
+    public void moveUp(int n) {
+        cursorRow -= n;
+        ensureCursorInBounds();
+    }
+
+    public void moveDown(int n) {
+        cursorRow += n;
+        ensureCursorInBounds();
+    }
+
+    public void moveLeft(int n) {
+        cursorCol -= n;
+        ensureCursorInBounds();
+    }
+
+    public void moveRight(int n) {
+        cursorCol += n;
+        ensureCursorInBounds();
+    }
 }
