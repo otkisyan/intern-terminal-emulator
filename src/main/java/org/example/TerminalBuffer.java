@@ -254,12 +254,7 @@ public class TerminalBuffer {
             sb.append('\n');
         }
 
-        for (List<Cell> line : screen) {
-            for (Cell c : line) {
-                sb.append(c.ch);
-            }
-            sb.append('\n');
-        }
+        sb.append(getScreenContent());
 
         return sb.toString();
     }
